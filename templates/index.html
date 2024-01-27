@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<style>
+    body {
+        background-image: url("{{ url_for('static',filename='dani.JPG') }}");
+        background-repeat:no-repeat;
+        background-size:cover;
+        color : white;
+        line-height : 100%;
+    }
+    a {
+        color:white;
+        text-decoration: none;
+    }
+    
+    a:hover {
+        color: #ffa200; 
+        text-decoration: underline;
+    }
+    
+    .links {
+        background-color: rgba(86, 80, 81, 0.7);
+        font-family: monospace;
+        font-size: 16px;
+        display: inline-block;
+        padding: 20px;
+    }
+</style>
+<head>
+    <title>Openmarmot File Serve</title>
+</head>
+<body>
+    <div class="links">
+    <h1>Openmarmot Local File Server</h1>
+    <form action="/download" method="post">
+        <input type="text" name="url" placeholder="Enter file URL">
+        <input type="submit" value="Download">
+    </form>
+    <h2>Currently Downloading</h2>
+    <ul>
+        {% for file in downloading_files %}
+            <li>{{ file }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Downloaded Files</h2>
+    <ul>
+        {% for file in completed_files %}
+            <li><a href="{{ url_for('files', filename=file) }}">{{ file }}</a></li>
+        {% endfor %}
+    </ul>
+
+    
+    </div>
+</body>
+</html>
