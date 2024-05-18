@@ -7,10 +7,11 @@ notes : simple flask http file server. meant for internal networks
 '''
 
 
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_from_directory, redirect
 import os
 import requests
 import threading
+import time
 
 app = Flask(__name__)
 DOWNLOAD_FOLDER = 'downloads'
@@ -54,7 +55,8 @@ def download_file():
     if url:
         download_thread = threading.Thread(target=start_download, args=(url,))
         download_thread.start()
-    return index()
+        time.sleep(1) # need to give the download time to start so it shows up on the refresh
+    return redirect('/')
 
 @app.route('/files/<filename>')
 def files(filename):
