@@ -3,21 +3,19 @@
 <style>
     body {
         background-image: url("{{ url_for('static',filename='dani.JPG') }}");
-        background-repeat:no-repeat;
-        background-size:cover;
-        color : white;
-        line-height : 100%;
+        background-repeat: no-repeat;
+        background-size: cover;
+        color: white;
+        line-height: 100%;
     }
     a {
-        color:white;
+        color: white;
         text-decoration: none;
     }
-    
     a:hover {
-        color: #ffa200; 
+        color: #ffa200;
         text-decoration: underline;
     }
-    
     .links {
         background-color: rgba(86, 80, 81, 0.7);
         font-family: monospace;
@@ -25,31 +23,92 @@
         display: inline-block;
         padding: 20px;
     }
+    .section {
+        margin-bottom: 20px;
+    }
+    form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    input[type="text"], input[type="file"] {
+        padding: 5px;
+        font-size: 16px;
+        color: black;
+        background-color: white;
+    }
+    input[type="submit"] {
+        padding: 5px 10px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .delete-button {
+        background-color: #f44336;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+    input[type="checkbox"] {
+        margin: 0;
+    }
 </style>
 <head>
-    <title>Openmarmot File Serve</title>
+    <title>mfileserve</title>
 </head>
 <body>
     <div class="links">
-    <h1>Openmarmot Local File Server</h1>
-    <form action="/download" method="post">
-        <input type="text" name="url" placeholder="Enter file URL">
-        <input type="submit" value="Download">
-    </form>
-    <h2>Currently Downloading</h2>
-    <ul>
-        {% for file in downloading_files %}
-            <li>{{ file }}</li>
-        {% endfor %}
-    </ul>
-    <h2>Downloaded Files</h2>
-    <ul>
-        {% for file in completed_files %}
-            <li><a href="{{ url_for('files', filename=file) }}">{{ file }}</a></li>
-        {% endfor %}
-    </ul>
-
-    
+        <div class="section">
+            <h1>mfileserve</h1>
+        </div>
+        <div class="section">
+            <br>
+            <h2>Download from URL</h2>
+            <form action="/download" method="post">
+                <input type="text" name="url" placeholder="Enter file URL">
+                <input type="submit" value="Download">
+            </form>
+        </div>
+        <div class="section">
+            <h2>Upload File</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <input type="submit" value="Upload">
+            </form>
+        </div>
+        <div class="section">
+            <br>
+            <h2>-- Downloading --</h2>
+            <ul>
+                {% for file in downloading_files %}
+                    <li>{{ file }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="section">
+            <br>
+            <h2>-- Files --</h2>
+            <form action="/delete" method="post">
+                <ul>
+                    {% for file in completed_files %}
+                        <li>
+                            <input type="checkbox" name="files" value="{{ file }}">
+                            <a href="{{ url_for('files', filename=file) }}">{{ file }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <input type="submit" value="Delete Selected" class="delete-button">
+            </form>
+        </div>
     </div>
 </body>
 </html>

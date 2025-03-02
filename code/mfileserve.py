@@ -1,12 +1,3 @@
-'''
-module : mfileserve.py
-Language : Python 3.x
-email : andrew@openmarmot.com
-github : https://github.com/openmarmot/mfileserve
-notes : simple flask http file server. meant for internal networks
-'''
-
-
 from flask import Flask, request, render_template, send_from_directory, redirect
 import os
 import requests
@@ -16,7 +7,7 @@ import time
 app = Flask(__name__)
 DOWNLOAD_FOLDER = 'downloads'
 DOWNLOAD_PREFIX = "downloading_"
-TIMEOUT_SECONDS = 7200 # time out of two hours
+TIMEOUT_SECONDS = 7200  # 2-hour timeout
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
@@ -24,7 +15,6 @@ def index():
     all_files = os.listdir(DOWNLOAD_FOLDER)
     completed_files = [f for f in all_files if not f.startswith(DOWNLOAD_PREFIX)]
     downloading_files = [f for f in all_files if f.startswith(DOWNLOAD_PREFIX)]
-
     return render_template('index.html', completed_files=completed_files, downloading_files=downloading_files)
 
 def start_download(url):
@@ -36,7 +26,7 @@ def start_download(url):
             print(f"File already exists: {filename}")
             return
         try:
-            r = requests.get(url, stream=True,timeout=TIMEOUT_SECONDS)
+            r = requests.get(url, stream=True, timeout=TIMEOUT_SECONDS)
             with open(temp_filepath, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
                     if chunk:
@@ -55,7 +45,30 @@ def download_file():
     if url:
         download_thread = threading.Thread(target=start_download, args=(url,))
         download_thread.start()
-        time.sleep(1) # need to give the download time to start so it shows up on the refresh
+        time.sleep(1)  # Allow time for the download to start
+    return redirect('/')
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return redirect('/')
+    file = request.files['file']
+    if file.filename == '':
+        return redirect('/')
+    if file:
+        filename = os.path.basename(file.filename)  # Sanitize filename
+        file.save(os.path.join(DOWNLOAD_FOLDER, filename))
+    return redirect('/')
+
+@app.route('/delete', methods=['POST'])
+def delete_files():
+    files = request.form.getlist('files')
+    for filename in files:
+        if '/' in filename or '\\' in filename:  # Prevent path traversal
+            continue
+        file_path = os.path.join(DOWNLOAD_FOLDER, filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
     return redirect('/')
 
 @app.route('/files/<filename>')
